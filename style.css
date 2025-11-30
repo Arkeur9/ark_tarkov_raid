@@ -1,0 +1,649 @@
+/* ==========================================
+   html/style.css - Tarkov Raid UI Style
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+    /* Couleurs principales Tarkov */
+    --tarkov-bg-primary: rgba(10, 10, 10, 0.95);
+    --tarkov-bg-secondary: rgba(20, 20, 20, 0.9);
+    --tarkov-border: rgba(100, 100, 100, 0.3);
+    --tarkov-border-accent: rgba(139, 0, 0, 0.8);
+    
+    /* Couleurs d'accent */
+    --tarkov-red: #8b0000;
+    --tarkov-red-light: #b71c1c;
+    --tarkov-green: #2d5016;
+    --tarkov-green-light: #4caf50;
+    --tarkov-blue: #1a237e;
+    --tarkov-blue-light: #3f51b5;
+    --tarkov-yellow: #f9a825;
+    --tarkov-orange: #e65100;
+    
+    /* Texte */
+    --tarkov-text-primary: #ecf0f1;
+    --tarkov-text-secondary: #95a5a6;
+    --tarkov-text-dim: #5a6268;
+    
+    /* Effets */
+    --shadow-intense: 0 8px 32px rgba(0, 0, 0, 0.8);
+    --shadow-glow-red: 0 0 20px rgba(139, 0, 0, 0.5);
+    --shadow-glow-green: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Rajdhani', 'Arial', sans-serif;
+    background: transparent;
+    overflow: hidden;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    color: var(--tarkov-text-primary);
+}
+
+#root {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ========================================
+   CONTENEUR PRINCIPAL
+   ======================================== */
+
+.raid-ui-container {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(20, 20, 20, 0.9) 100%);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.raid-ui-main {
+    position: relative;
+    width: 100%;
+    max-width: 1600px;
+    height: 90vh;
+    background: linear-gradient(135deg, var(--tarkov-bg-primary) 0%, var(--tarkov-bg-secondary) 100%);
+    border: 2px solid var(--tarkov-border);
+    box-shadow: var(--shadow-intense);
+    overflow: hidden;
+}
+
+.raid-ui-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.01) 2px,
+            rgba(255, 255, 255, 0.01) 4px
+        );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.raid-ui-header {
+    position: relative;
+    height: 100px;
+    background: linear-gradient(90deg, rgba(139, 0, 0, 0.3) 0%, rgba(20, 20, 20, 0.5) 100%);
+    border-bottom: 2px solid var(--tarkov-border-accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    z-index: 10;
+}
+
+.raid-ui-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--tarkov-red), transparent);
+    box-shadow: 0 0 10px var(--tarkov-red);
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--tarkov-red) 0%, var(--tarkov-red-light) 100%);
+    border: 2px solid var(--tarkov-border-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+    box-shadow: var(--shadow-glow-red);
+}
+
+.logo-title h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--tarkov-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(139, 0, 0, 0.8);
+    margin: 0;
+}
+
+.logo-subtitle {
+    font-size: 13px;
+    color: var(--tarkov-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+.header-close-btn {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(139, 0, 0, 0.5) 100%);
+    border: 1px solid var(--tarkov-border-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.header-close-btn:hover {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.5) 0%, rgba(183, 28, 28, 0.7) 100%);
+    box-shadow: var(--shadow-glow-red);
+    transform: rotate(90deg);
+}
+
+/* ========================================
+   CONTENT AREA
+   ======================================== */
+
+.raid-ui-content {
+    height: calc(90vh - 100px);
+    overflow-y: auto;
+    padding: 40px;
+    position: relative;
+    z-index: 2;
+}
+
+.raid-ui-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.raid-ui-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid var(--tarkov-border);
+}
+
+.raid-ui-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--tarkov-red) 0%, var(--tarkov-red-light) 100%);
+    border-radius: 0;
+}
+
+.raid-ui-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--tarkov-red-light) 0%, var(--tarkov-red) 100%);
+}
+
+/* ========================================
+   PANELS & CARDS
+   ======================================== */
+
+.raid-panel {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+    border: 2px solid var(--tarkov-border);
+    padding: 30px;
+    position: relative;
+    box-shadow: var(--shadow-intense);
+}
+
+.raid-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.01) 10px,
+            rgba(255, 255, 255, 0.01) 20px
+        );
+    pointer-events: none;
+}
+
+.raid-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--tarkov-border);
+}
+
+.raid-panel-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--tarkov-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.raid-card {
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.6) 0%, rgba(20, 20, 20, 0.8) 100%);
+    border: 1px solid var(--tarkov-border);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.raid-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.raid-card:hover::before {
+    left: 100%;
+}
+
+.raid-card:hover {
+    border-color: var(--tarkov-red);
+    box-shadow: var(--shadow-glow-red);
+    transform: translateY(-2px);
+}
+
+.raid-card.active {
+    border: 2px solid var(--tarkov-green-light);
+    box-shadow: var(--shadow-glow-green);
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.raid-btn {
+    background: linear-gradient(135deg, rgba(45, 80, 22, 0.6) 0%, rgba(45, 80, 22, 0.8) 100%);
+    border: 2px solid var(--tarkov-green);
+    color: var(--tarkov-text-primary);
+    padding: 15px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.raid-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.raid-btn:hover::before {
+    left: 100%;
+}
+
+.raid-btn:hover {
+    background: linear-gradient(135deg, var(--tarkov-green) 0%, var(--tarkov-green-light) 100%);
+    border-color: var(--tarkov-green-light);
+    box-shadow: var(--shadow-glow-green);
+    transform: translateY(-2px);
+}
+
+.raid-btn-danger {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.6) 0%, rgba(139, 0, 0, 0.8) 100%);
+    border-color: var(--tarkov-red);
+}
+
+.raid-btn-danger:hover {
+    background: linear-gradient(135deg, var(--tarkov-red) 0%, var(--tarkov-red-light) 100%);
+    border-color: var(--tarkov-red-light);
+    box-shadow: var(--shadow-glow-red);
+}
+
+/* ========================================
+   SQUAD TYPES
+   ======================================== */
+
+.squad-type-card {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.7) 0%, rgba(15, 15, 15, 0.9) 100%);
+    border: 2px solid var(--tarkov-border);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.squad-type-card:hover {
+    border-color: var(--tarkov-blue-light);
+    box-shadow: 0 0 20px rgba(63, 81, 181, 0.5);
+    transform: translateX(5px);
+}
+
+.squad-type-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.squad-type-icon {
+    font-size: 48px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.squad-type-details h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--tarkov-text-primary);
+    margin-bottom: 5px;
+}
+
+.squad-type-details p {
+    font-size: 14px;
+    color: var(--tarkov-text-secondary);
+}
+
+/* ========================================
+   MAP SELECTION
+   ======================================== */
+
+.map-card {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+    border: 2px solid var(--tarkov-border);
+    padding: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.map-card:hover {
+    border-color: var(--tarkov-green);
+    box-shadow: var(--shadow-glow-green);
+    transform: translateY(-5px);
+}
+
+.map-card.selected {
+    border: 3px solid var(--tarkov-green-light);
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
+}
+
+.map-card-icon {
+    font-size: 80px;
+    text-align: center;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+.map-card-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--tarkov-text-primary);
+    text-align: center;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.map-card-desc {
+    font-size: 14px;
+    color: var(--tarkov-text-secondary);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.map-card-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.map-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-stat-label {
+    font-size: 13px;
+    color: var(--tarkov-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.map-stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--tarkov-text-primary);
+}
+
+.difficulty-easy {
+    color: var(--tarkov-green-light);
+}
+
+.difficulty-medium {
+    color: var(--tarkov-yellow);
+}
+
+.difficulty-hard {
+    color: var(--tarkov-red-light);
+}
+
+/* ========================================
+   LOBBY
+   ======================================== */
+
+.lobby-container {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.lobby-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 40px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+.lobby-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--tarkov-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px rgba(249, 168, 37, 0.8);
+}
+
+.lobby-timer {
+    background: linear-gradient(135deg, rgba(249, 168, 37, 0.2) 0%, rgba(229, 81, 0, 0.3) 100%);
+    border: 2px solid var(--tarkov-yellow);
+    padding: 40px;
+    margin: 40px auto;
+    max-width: 400px;
+    box-shadow: 0 0 40px rgba(249, 168, 37, 0.5);
+}
+
+.lobby-timer-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 96px;
+    font-weight: 900;
+    color: var(--tarkov-yellow);
+    text-shadow: 0 0 40px rgba(249, 168, 37, 1);
+    margin-bottom: 10px;
+}
+
+.lobby-timer-label {
+    font-size: 14px;
+    color: var(--tarkov-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.lobby-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.lobby-stat-card {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.8) 0%, rgba(15, 15, 15, 0.9) 100%);
+    border: 1px solid var(--tarkov-border);
+    padding: 25px;
+    text-align: center;
+}
+
+.lobby-stat-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 15px;
+}
+
+.lobby-stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--tarkov-text-primary);
+    margin-bottom: 10px;
+}
+
+.lobby-stat-label {
+    font-size: 13px;
+    color: var(--tarkov-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+.text-center {
+    text-align: center;
+}
+
+.mb-4 {
+    margin-bottom: 20px;
+}
+
+.mb-6 {
+    margin-bottom: 30px;
+}
+
+.gap-4 {
+    gap: 20px;
+}
+
+.grid {
+    display: grid;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .raid-ui-header {
+        padding: 0 20px;
+        height: 80px;
+    }
+    
+    .logo-title h1 {
+        font-size: 24px;
+    }
+    
+    .raid-ui-content {
+        padding: 20px;
+    }
+    
+    .grid-cols-3 {
+        grid-template-columns: 1fr;
+    }
+}

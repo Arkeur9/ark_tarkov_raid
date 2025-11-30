@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarkov Raid UI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Users, MapPin, Shield, Clock, Coins, ChevronRight, X, Check, User, UserPlus, Crown, AlertCircle } = lucide;
+
+        const TarkovRaidUI = () => {
+          const [isVisible, setIsVisible] = useState(false);
+          const [currentView, setCurrentView] = useState('menu');
+          const [currentSquad, setCurrentSquad] = useState(null);
+          const [selectedMap, setSelectedMap] = useState(null);
+          const [nearbyPlayers, setNearbyPlayers] = useState([]);
+          const [lobbyTimer, setLobbyTimer] = useState(30);
+
+          const squadTypes = {
+            solo: { label: 'Solo', icon: '👤', min: 1, max: 1, multiplier: 1.5 },
+            duo: { label: 'Duo', icon: '👥', min: 2, max: 2, multiplier: 1.2 },
+            trio: { label: 'Trio', icon: '👥👤', min: 3, max: 3, multiplier: 1.0 },
+            squad: { label: 'Squad', icon: '👥👥', min: 4, max: 4, multiplier: 0.9 },
+          };
+
+          const maps = {
+            customs: {
+              name: 'Customs',
+              description: 'Zone industrielle avec usines et dortoirs',
+              duration: 45,
+              difficulty: 'Medium',
+              difficultyColor: 'text-yellow-400',
+              fee: 15000,
+              level: 1,
+              extractions: 4,
+              image: '🏭'
+            },
+            factory: {
+              name: 'Factory',
+              description: 'Usine compacte, action rapide et intense',
+              duration: 20,
+              difficulty: 'Hard',
+              difficultyColor: 'text-red-400',
+              fee: 25000,
+              level: 5,
+              extractions: 3,
+              image: '🏗️'
+            },
+            woods: {
+              name: 'Woods',
+              description: 'Grande forêt avec scierie et camps',
+              duration: 50,
+              difficulty: 'Medium',
+              difficultyColor: 'text-yellow-400',
+              fee: 12000,
+              level: 3,
+              extractions: 3,
+              image: '🌲'
+            }
+          };
+
+          useEffect(() => {
+            const handleMessage = (event) => {
+              const { type, data } = event.data;
+              
+              switch(type) {
+                case 'openRaidUI':
+                  setIsVisible(true);
+                  setCurrentView('menu');
+                  break;
+                case 'closeRaidUI':
+                  setIsVisible(false);
+                  break;
+                case 'updateSquad':
+                  setCurrentSquad(data);
+                  break;
+                case 'updateNearbyPlayers':
+                  setNearbyPlayers(data);
+                  break;
+                case 'startLobby':
+                  setCurrentView('lobby');
+                  setLobbyTimer(30);
+                  break;
+              }
+            };
+
+            window.addEventListener('message', handleMessage);
+            return () => window.removeEventListener('message', handleMessage);
+          }, []);
+
+          useEffect(() => {
+            if (currentView === 'lobby' && lobbyTimer > 0) {
+              const timer = setTimeout(() => setLobbyTimer(lobbyTimer - 1), 1000);
+              return () => clearTimeout(timer);
+            }
+          }, [currentView, lobbyTimer]);
+
+          useEffect(() => {
+            const handleKeyPress = (e) => {
+              if (e.key === 'Escape' && isVisible) {
+                sendNuiMessage('closeUI');
+                setIsVisible(false);
+              }
+            };
+
+            window.addEventListener('keydown', handleKeyPress);
+            return () => window.removeEventListener('keydown', handleKeyPress);
+          }, [isVisible]);
+
+          const sendNuiMessage = (action, data = {}) => {
+            fetch(`https://${GetParentResourceName()}/${action}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+          };
+
+          const createSquad = (type) => {
+            sendNuiMessage('createSquad', { type });
+            setCurrentView('squad');
+          };
+
+          const invitePlayer = (playerId) => {
+            sendNuiMessage('invitePlayer', { playerId });
+          };
+
+          const selectMap = (mapKey) => {
+            setSelectedMap(mapKey);
+          };
+
+          const startRaid = () => {
+            if (selectedMap && currentSquad) {
+              sendNuiMessage('startRaid', { 
+                squadId: currentSquad.id, 
+                mapName: selectedMap 
+              });
+            }
+          };
+
+          const leaveSquad = () => {
+            sendNuiMessage('leaveSquad', { squadId: currentSquad?.id });
+            setCurrentSquad(null);
+            setCurrentView('menu');
+          };
+
+          if (!isVisible) return null;
+
+          return (
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 font-sans">
+              <div className="relative w-full max-w-6xl h-[90vh] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-gray-700 shadow-2xl overflow-hidden">
+                
+                <div className="relative h-24 bg-gradient-to-r from-red-900/40 to-gray-900/40 border-b-2 border-red-800/50 flex items-center justify-between px-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-red-900/50 border-2 border-red-700 flex items-center justify-center">
+                      <Shield className="w-10 h-10 text-red-500" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-bold text-white tracking-wider uppercase">
+                        Tarkov Raid System
+                      </h1>
+                      <p className="text-sm text-gray-400 uppercase tracking-wide">Escape From Tarkov</p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      sendNuiMessage('closeUI');
+                      setIsVisible(false);
+                    }}
+                    className="w-12 h-12 bg-red-900/30 hover:bg-red-800/50 border border-red-700 flex items-center justify-center transition-all"
+                  >
+                    <X className="w-6 h-6 text-red-500" />
+                  </button>
+                </div>
+
+                <div className="h-[calc(90vh-6rem)] overflow-y-auto p-8">
+                  
+                  {currentView === 'menu' && (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div className="bg-gray-800/50 border-2 border-gray-700 p-6">
+                          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                            <Users className="w-6 h-6 text-blue-500" />
+                            Créer un Squad
+                          </h2>
+                          
+                          <div className="space-y-3">
+                            {Object.entries(squadTypes).map(([key, type]) => (
+                              <button
+                                key={key}
+                                onClick={() => createSquad(key)}
+                                className="w-full bg-gray-900/50 hover:bg-blue-900/30 border border-gray-700 hover:border-blue-600 p-4 flex items-center justify-between transition-all group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-3xl">{type.icon}</span>
+                                  <div className="text-left">
+                                    <div className="text-lg font-bold text-white">{type.label}</div>
+                                    <div className="text-sm text-gray-400">
+                                      {type.min}-{type.max} joueurs • Bonus x{type.multiplier}
+                                    </div>
+                                  </div>
+                                </div>
+                                <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-blue-500 transition-colors" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-800/50 border-2 border-gray-700 p-6">
+                          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                            <Users className="w-6 h-6 text-green-500" />
+                            Mon Squad
+                          </h2>
+                          
+                          {currentSquad ? (
+                            <div className="space-y-4">
+                              <div className="bg-green-900/20 border border-green-800 p-4">
+                                <div className="text-sm text-green-400 mb-2">Type de squad</div>
+                                <div className="text-xl font-bold text-white">
+                                  {squadTypes[currentSquad.type]?.label || 'N/A'}
+                                </div>
+                                <div className="text-sm text-gray-400 mt-1">
+                                  {currentSquad.members?.length || 0} / {squadTypes[currentSquad.type]?.max || 0} membres
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                {(currentSquad.members || []).map((member, idx) => (
+                                  <div key={idx} className="bg-gray-900/50 border border-gray-700 p-3 flex items-center gap-2">
+                                    {member.isLeader ? (
+                                      <Crown className="w-4 h-4 text-yellow-500" />
+                                    ) : (
+                                      <User className="w-4 h-4 text-gray-500" />
+                                    )}
+                                    <span className="text-white">{member.name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => setCurrentView('squad')}
+                                  className="flex-1 bg-blue-900/30 hover:bg-blue-800/50 border border-blue-700 text-white py-3 font-bold transition-all"
+                                >
+                                  Gérer
+                                </button>
+                                <button
+                                  onClick={() => setCurrentView('maps')}
+                                  className="flex-1 bg-green-900/30 hover:bg-green-800/50 border border-green-700 text-white py-3 font-bold transition-all"
+                                >
+                                  Lancer Raid
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-gray-900/50 border border-gray-700 p-8 text-center">
+                              <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                              <p className="text-gray-400">Vous n'êtes dans aucun squad</p>
+                              <p className="text-sm text-gray-500 mt-1">Créez un squad pour commencer</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentView === 'squad' && currentSquad && (
+                    <div className="space-y-6">
+                      <button
+                        onClick={() => setCurrentView('menu')}
+                        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4 rotate-180" />
+                        Retour
+                      </button>
+
+                      <div className="bg-gray-800/50 border-2 border-gray-700 p-6">
+                        <h2 className="text-2xl font-bold text-white mb-6">Gestion du Squad</h2>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <h3 className="text-lg font-bold text-white mb-4">Membres du squad</h3>
+                            <div className="space-y-2">
+                              {(currentSquad.members || []).map((member, idx) => (
+                                <div key={idx} className="bg-gray-900/50 border border-gray-700 p-4 flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    {member.isLeader ? (
+                                      <Crown className="w-5 h-5 text-yellow-500" />
+                                    ) : (
+                                      <User className="w-5 h-5 text-gray-500" />
+                                    )}
+                                    <div>
+                                      <div className="text-white font-bold">{member.name}</div>
+                                      <div className="text-sm text-gray-400">
+                                        {member.isLeader ? 'Leader' : 'Membre'}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <h3 className="text-lg font-bold text-white mb-4">Joueurs à proximité</h3>
+                            <div className="space-y-2">
+                              {nearbyPlayers.map((player, idx) => (
+                                <div key={idx} className="bg-gray-900/50 border border-gray-700 p-4 flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <User className="w-5 h-5 text-blue-500" />
+                                    <span className="text-white">{player.name}</span>
+                                  </div>
+                                  <button
+                                    onClick={() => invitePlayer(player.id)}
+                                    className="bg-blue-900/30 hover:bg-blue-800/50 border border-blue-700 px-4 py-2 flex items-center gap-2 transition-all"
+                                  >
+                                    <UserPlus className="w-4 h-4 text-blue-500" />
+                                    <span className="text-white text-sm">Inviter</span>
+                                  </button>
+                                </div>
+                              ))}
+                              
+                              {nearbyPlayers.length === 0 && (
+                                <div className="bg-gray-900/50 border border-gray-700 p-8 text-center">
+                                  <p className="text-gray-400">Aucun joueur à proximité</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 pt-6 border-t border-gray-700 flex gap-4">
+                          <button
+                            onClick={() => setCurrentView('maps')}
+                            className="flex-1 bg-green-900/30 hover:bg-green-800/50 border border-green-700 text-white py-3 font-bold transition-all"
+                          >
+                            Sélectionner une Map
+                          </button>
+                          <button
+                            onClick={leaveSquad}
+                            className="bg-red-900/30 hover:bg-red-800/50 border border-red-700 text-white px-6 py-3 font-bold transition-all"
+                          >
+                            Quitter le Squad
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentView === 'maps' && (
+                    <div className="space-y-6">
+                      <button
+                        onClick={() => setCurrentView(currentSquad ? 'squad' : 'menu')}
+                        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4 rotate-180" />
+                        Retour
+                      </button>
+
+                      <div className="bg-gray-800/50 border-2 border-gray-700 p-6">
+                        <h2 className="text-2xl font-bold text-white mb-6">Sélectionner une Map</h2>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {Object.entries(maps).map(([key, map]) => (
+                            <button
+                              key={key}
+                              onClick={() => selectMap(key)}
+                              className={`relative bg-gray-900/50 border-2 ${
+                                selectedMap === key ? 'border-green-600' : 'border-gray-700'
+                              } hover:border-green-700 p-6 text-left transition-all group`}
+                            >
+                              {selectedMap === key && (
+                                <div className="absolute top-4 right-4">
+                                  <Check className="w-6 h-6 text-green-500" />
+                                </div>
+                              )}
+                              
+                              <div className="text-6xl mb-4">{map.image}</div>
+                              
+                              <h3 className="text-2xl font-bold text-white mb-2">{map.name}</h3>
+                              <p className="text-sm text-gray-400 mb-4">{map.description}</p>
+                              
+                              <div className="space-y-2 text-sm">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400">Difficulté</span>
+                                  <span className={`font-bold ${map.difficultyColor}`}>{map.difficulty}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400">Durée</span>
+                                  <span className="text-white font-bold">{map.duration} min</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400">Frais d'entrée</span>
+                                  <span className="text-yellow-500 font-bold">{map.fee.toLocaleString()} ₽</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400">Niveau requis</span>
+                                  <span className="text-white font-bold">{map.level}+</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-400">Extractions</span>
+                                  <span className="text-white font-bold">{map.extractions}</span>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+
+                        {selectedMap && (
+                          <div className="mt-6 pt-6 border-t border-gray-700">
+                            <button
+                              onClick={startRaid}
+                              className="w-full bg-green-900/30 hover:bg-green-800/50 border-2 border-green-700 text-white py-4 text-xl font-bold transition-all flex items-center justify-center gap-3"
+                            >
+                              <Shield className="w-6 h-6" />
+                              LANCER LE RAID
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentView === 'lobby' && (
+                    <div className="space-y-6">
+                      <div className="bg-gray-800/50 border-2 border-yellow-700 p-8 text-center">
+                        <Shield className="w-24 h-24 text-yellow-500 mx-auto mb-6 animate-pulse" />
+                        
+                        <h2 className="text-3xl font-bold text-white mb-4">PRÉPARATION DU RAID</h2>
+                        <p className="text-gray-400 mb-8">Le raid va commencer dans quelques instants...</p>
+                        
+                        <div className="bg-gray-900/50 border border-yellow-700 p-8 mb-8">
+                          <div className="text-6xl font-bold text-yellow-500 mb-2">{lobbyTimer}</div>
+                          <div className="text-sm text-gray-400 uppercase tracking-wider">Secondes restantes</div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+                          <div className="bg-gray-900/50 border border-gray-700 p-4">
+                            <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{maps[selectedMap]?.duration || 0} min</div>
+                            <div className="text-sm text-gray-400">Durée du raid</div>
+                          </div>
+                          
+                          <div className="bg-gray-900/50 border border-gray-700 p-4">
+                            <MapPin className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{maps[selectedMap]?.extractions || 0}</div>
+                            <div className="text-sm text-gray-400">Points d'extraction</div>
+                          </div>
+                          
+                          <div className="bg-gray-900/50 border border-gray-700 p-4">
+                            <Users className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{currentSquad?.members?.length || 0}</div>
+                            <div className="text-sm text-gray-400">Membres du squad</div>
+                          </div>
+                          
+                          <div className="bg-gray-900/50 border border-gray-700 p-4">
+                            <Coins className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{maps[selectedMap]?.fee.toLocaleString() || 0} ₽</div>
+                            <div className="text-sm text-gray-400">Frais d'entrée</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        function GetParentResourceName() {
+            return window.location.hostname === '' ? 'ark_tarkov_raid' : window.location.hostname;
+        }
+        
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TarkovRaidUI />);
+    </script>
+</body>
+</html>
